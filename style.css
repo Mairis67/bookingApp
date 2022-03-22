@@ -1,0 +1,9 @@
+* {
+    box-sizing: border-box;
+    text-align: center;
+    padding: 5px;
+}
+
+#apartments {
+    background-color: green;
+}
