@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Database;
 use App\Redirect;
+use App\Services\SignIn\SignInRequest;
+use App\Services\SignIn\SignInService;
 use App\View;
 
 class SignInController
@@ -43,7 +45,7 @@ class SignInController
             ->executeQuery()
             ->fetchAssociative();
 
-        $_SESSION['userid'] = $usersQuery['id'];
+        $_SESSION['userid'] = $usersProfileQuery['id'];
         $_SESSION['username'] = $usersProfileQuery['name'];
 
         return new Redirect('/users/home');

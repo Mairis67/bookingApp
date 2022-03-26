@@ -8,7 +8,7 @@ class User
     private string $surname;
     private string $email;
     private string $password;
-    private ?int $id = null;
+    private ?int $id;
 
     public function __construct(string $name, string $surname, string $email, string $password, ?int $id = null)
     {
