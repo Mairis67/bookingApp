@@ -10,12 +10,11 @@ class Apartment
     private string $availableFrom;
     private string $availableTo;
     private array $reviews;
-    private int $id;
-    private ?int $userId;
-
+    private ?int $id;
+    private int $userId;
 
     public function __construct(string $name, string $description, string $address, string $availableFrom,
-                                string $availableTo, int $id, ?int $userId, array $reviews = [])
+                                string $availableTo, int $userId,?int $id = null, array $reviews = [])
     {
         $this->name = $name;
         $this->description = $description;
@@ -47,7 +46,7 @@ class Apartment
         return $this->availableFrom;
     }
 
-    public function getAvailableTo(): ?string
+    public function getAvailableTo(): string
     {
         return $this->availableTo;
     }

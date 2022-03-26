@@ -8,15 +8,6 @@ class UpdateApartmentsService
 {
     public function execute(UpdateApartmentsRequest $request)
     {
-        Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, $request->getApartmentId())
-            ->executeQuery()
-            ->fetchAssociative();
-
         Database::connection()->update('apartments', [
             'name' => $request->getName(),
             'description' => $request->getDescription(),

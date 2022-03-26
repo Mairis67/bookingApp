@@ -9,10 +9,10 @@ class StoreApartmentRequest
     private string $address;
     private string $availableFrom;
     private string $availableTo;
-    private int $userId;
+    private ?int $userId;
 
     public function __construct(string $name, string $description, string $address, string $availableFrom,
-                                string $availableTo, int $userId)
+                                string $availableTo, ?int $userId)
     {
         $this->name = $name;
         $this->description = $description;
@@ -47,9 +47,8 @@ class StoreApartmentRequest
         return $this->availableTo;
     }
 
-    public function getUserId(): int
+    public function getUserId(): ?int
     {
         return $this->userId;
     }
-
 }

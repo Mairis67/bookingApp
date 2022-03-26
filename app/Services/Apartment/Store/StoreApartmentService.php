@@ -2,20 +2,34 @@
 
 namespace App\Services\Apartment\Store;
 
-use App\Database;
+use App\Models\Apartment;
+use App\Repositories\Apartment\Store\MySqlStoreApartmentRepository;
+use App\Repositories\Apartment\Store\StoreApartmentRepository;
 
 class StoreApartmentService
 {
-    public function execute(StoreApartmentRequest $request)
+
+    private StoreApartmentRepository $storeApartmentRepository;
+
+    public function __construct()
     {
-        Database::connection()
-            ->insert('apartments', [
-                'name' => $request->getName(),
-                'description' => $request->getDescription(),
-                'address' => $request->getAddress(),
-                'available_from' => $request->getAvailableFrom(),
-                'available_to' => $request->getAvailableTo(),
-                'user_id' => $request->getUserId()
-            ]);
+        $this->storeApartmentRepository = new MySqlStoreApartmentRepository();
+    }
+
+    public function execute(StoreApartmentRequest $request): Apartment
+    {
+        $apartment = new Apartment(
+            $request->getName(),
+            $request->getDescription(),
+            $request->getAddress(),
+            $request->getAvailableFrom(),
+            $request->getAvailableTo(),
+            $request->getUserId(),
+        
+        );
+
+        $this->storeApartmentRepository->save($apartment);
+
+        return $apartment;
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Repositories\Apartment;
+namespace App\Repositories\Apartment\Store;
 
 use App\Models\Apartment;
 
-interface ApartmentRepository
+interface StoreApartmentRepository
 {
     public function save(Apartment $apartment): void;
 }

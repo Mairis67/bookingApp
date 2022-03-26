@@ -2,14 +2,12 @@
 
 namespace App\Controllers;
 
-use App\Database;
-use App\Models\Apartment;
-use App\Models\Review;
 use App\Redirect;
 use App\Services\Apartment\Delete\DeleteApartmentRequest;
 use App\Services\Apartment\Delete\DeleteApartmentService;
 use App\Services\Apartment\Edit\EditApartmentRequest;
 use App\Services\Apartment\Edit\EditApartmentService;
+use App\Services\Apartment\Index\IndexApartmentService;
 use App\Services\Apartment\Show\ShowApartmentRequest;
 use App\Services\Apartment\Show\ShowApartmentService;
 use App\Services\Apartment\Store\StoreApartmentRequest;
@@ -23,35 +21,8 @@ class ApartmentsController
 {
     public function index(): View
     {
-//        $service = new IndexApartmentService();
-//
-//        $response = $service->execute(new IndexApartmentRequest($articleId));
-////
-//        $apartments = $service->execute(new IndexApartmentRequest($apartmentId));
-
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->executeQuery()
-            ->fetchAllAssociative();
-
-
-
-        $apartments = [];
-
-        foreach ($apartmentQuery as $apartmentData) {
-            $apartmentDate = explode(' ',$apartmentData['available_from']);
-            $apartments [] = new Apartment(
-                $apartmentData['name'],
-                $apartmentData['description'],
-                $apartmentData['address'],
-                $apartmentDate[0],
-                $apartmentData['available_to'],
-                $apartmentData['id'],
-                $apartmentDate['user_id']
-            );
-        }
+        $service = new IndexApartmentService();
+        $apartments = $service->execute();
 
         $userName = $_SESSION['username'];
         $userId = (int) $_SESSION['userid'];
@@ -160,64 +131,18 @@ class ApartmentsController
 
     public function update(array $vars): Redirect
     {
-//        $apartmentId = (int) $vars['id'];
-//
-//        $service = new UpdateApartmentsService();
-//
-//        $service->execute(new UpdateApartmentsRequest(
-//            $_POST['name'],
-//            $_POST['description'],
-//            $_POST['address'],
-//            $_POST['available_from'],
-//            $_POST['available_to'],
-//            $apartmentId
-//        ));
-//
-//
-//
-////        $apartmentQuery = Database::connection()
-////            ->createQueryBuilder()
-////            ->select('*')
-////            ->from('apartments')
-////            ->where('id = ?')
-////            ->setParameter(0, $apartmentId)
-////            ->executeQuery()
-////            ->fetchAssociative();
-//
-//        if($_SESSION['userid'] === $service['user_id']) {
-//            $service->execute(new UpdateApartmentsRequest(
-//                $_POST['name'],
-//                $_POST['description'],
-//                $_POST['address'],
-//                $_POST['available_from'],
-//                $_POST['available_to'],
-//                $apartmentId
-//            ));
-//        }
-//
-//        return new Redirect('/apartments/' . $vars['id']);
+        $apartmentId = (int) $vars['id'];
 
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
-            ->executeQuery()
-            ->fetchAssociative();
-
-        if($_SESSION['userid'] === $apartmentQuery['user_id']) {
-            Database::connection()->update('apartments', [
-                'name' => $_POST['name'],
-                'description' => $_POST['description'],
-                'address' => $_POST['address'],
-                'available_from' => $_POST['available_from'],
-                'available_to' => $_POST['available_to'],
-            ], ['id' => (int) $vars['id']]);
-        }
+        $service = new UpdateApartmentsService();
+        $service->execute(new UpdateApartmentsRequest(
+            $_POST['name'],
+            $_POST['description'],
+            $_POST['address'],
+            $_POST['available_from'],
+            $_POST['available_to'],
+            $apartmentId
+        ));
 
         return new Redirect('/apartments/' . $vars['id']);
     }
-
-
 }
