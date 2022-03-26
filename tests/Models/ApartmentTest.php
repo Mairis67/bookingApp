@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Models;
 
 use App\Models\Apartment;
 use PHPUnit\Framework\TestCase;
