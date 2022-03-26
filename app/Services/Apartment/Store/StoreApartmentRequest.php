@@ -1,29 +1,24 @@
 <?php
 
-namespace App\Models;
+namespace App\Services\Apartment\Store;
 
-class Apartment
+class StoreApartmentRequest
 {
     private string $name;
     private string $description;
     private string $address;
     private string $availableFrom;
     private string $availableTo;
-    private array $reviews;
-    private int $id;
-    private ?int $userId;
-
+    private int $userId;
 
     public function __construct(string $name, string $description, string $address, string $availableFrom,
-                                string $availableTo, int $id, ?int $userId, array $reviews = [])
+                                string $availableTo, int $userId)
     {
         $this->name = $name;
         $this->description = $description;
         $this->address = $address;
         $this->availableFrom = $availableFrom;
         $this->availableTo = $availableTo;
-        $this->reviews = $reviews;
-        $this->id = $id;
         $this->userId = $userId;
     }
 
@@ -47,14 +42,9 @@ class Apartment
         return $this->availableFrom;
     }
 
-    public function getAvailableTo(): ?string
+    public function getAvailableTo(): string
     {
         return $this->availableTo;
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getUserId(): int
@@ -62,8 +52,4 @@ class Apartment
         return $this->userId;
     }
 
-    public function getReviews(): array
-    {
-        return $this->reviews;
-    }
 }

@@ -6,6 +6,16 @@ use App\Database;
 use App\Models\Apartment;
 use App\Models\Review;
 use App\Redirect;
+use App\Services\Apartment\Delete\DeleteApartmentRequest;
+use App\Services\Apartment\Delete\DeleteApartmentService;
+use App\Services\Apartment\Edit\EditApartmentRequest;
+use App\Services\Apartment\Edit\EditApartmentService;
+use App\Services\Apartment\Show\ShowApartmentRequest;
+use App\Services\Apartment\Show\ShowApartmentService;
+use App\Services\Apartment\Store\StoreApartmentRequest;
+use App\Services\Apartment\Store\StoreApartmentService;
+use App\Services\Apartment\Update\UpdateApartmentsRequest;
+use App\Services\Apartment\Update\UpdateApartmentsService;
 use App\View;
 use Carbon\Carbon;
 
@@ -13,13 +23,20 @@ class ApartmentsController
 {
     public function index(): View
     {
+//        $service = new IndexApartmentService();
+//
+//        $response = $service->execute(new IndexApartmentRequest($articleId));
+////
+//        $apartments = $service->execute(new IndexApartmentRequest($apartmentId));
+
         $apartmentQuery = Database::connection()
             ->createQueryBuilder()
             ->select('*')
             ->from('apartments')
-//            ->orderBy('id', 'desc')
             ->executeQuery()
             ->fetchAllAssociative();
+
+
 
         $apartments = [];
 
@@ -48,55 +65,17 @@ class ApartmentsController
 
     public function show(array $vars): View
     {
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
-            ->executeQuery()
-            ->fetchAssociative();
+        $apartmentId = (int) $vars['id'];
 
-        $apartmentDate = explode(' ', $apartmentQuery['available_from']);
+        $service = new ShowApartmentService();
 
-        $apartment = new Apartment(
-            $apartmentQuery['name'],
-            $apartmentQuery['description'],
-            $apartmentQuery['address'],
-            $apartmentDate[0],
-            $apartmentQuery['available_to'],
-            $apartmentQuery['id'],
-            $apartmentQuery['user_id']
-        );
-
-        $reviewsQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartment_reviews')
-            ->where('apartment_id = ?')
-            ->setParameter(0, (int) $vars['id'])
-            ->executeQuery()
-            ->fetchAllAssociative();
-
-        $reviews = [];
-
-        foreach ($reviewsQuery as $reviewData) {
-            $reviews [] = new Review(
-                $reviewData['author'],
-                $reviewData['review'],
-                $reviewData['created_at'],
-                $reviewData['author_id'],
-                $reviewData['apartment_id'],
-                $reviewData['id'],
-            );
-        }
+        $apartment = $service->execute(new ShowApartmentRequest($apartmentId));
 
         $userName = $_SESSION['username'];
         $userId = (int) $_SESSION['userid'];
 
         return new View('Apartments/show', [
             'apartment' => $apartment,
-            'reviews' => $reviews,
             'username' => $userName,
             'userid' => $userId
         ]);
@@ -133,33 +112,29 @@ class ApartmentsController
 
         $userId = $_SESSION['userid'];
 
-        Database::connection()
-            ->insert('apartments', [
-                'name' => $_POST['name'],
-                'description' => $_POST['description'],
-                'address' => $_POST['address'],
-                'available_from' => $availableFrom,
-                'available_to' => $availableTo,
-                'user_id' => $userId
-            ]);
+        $service = new StoreApartmentService();
+        $service->execute(new StoreApartmentRequest(
+            $_POST['name'],
+            $_POST['description'],
+            $_POST['address'],
+            $availableFrom,
+            $availableTo,
+            $userId
+        ));
 
         return new Redirect('/apartments');
     }
 
     public function delete(array $vars): Redirect
     {
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
-            ->executeQuery()
-            ->fetchAssociative();
+        $apartmentId = (int) $vars['id'];
 
-        if($_SESSION['userid'] === $apartmentQuery['user_id']) {
-            Database::connection()
-                ->delete('apartments', ['id' => (int) $vars['id']]);
+        $service = new DeleteApartmentService();
+
+        $service->execute(new DeleteApartmentRequest($apartmentId));
+
+        if($_SESSION['userid'] === $service) {
+            $service->execute(new DeleteApartmentRequest($apartmentId));
         }
 
         return new Redirect('/apartments');
@@ -167,24 +142,11 @@ class ApartmentsController
 
     public function edit(array $vars): View
     {
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
-            ->executeQuery()
-            ->fetchAssociative();
+        $apartmentId = (int) $vars['id'];
 
-        $apartment = new Apartment(
-            $apartmentQuery['name'],
-            $apartmentQuery['address'],
-            $apartmentQuery['description'],
-            $apartmentQuery['available_from'],
-            $apartmentQuery['available_to'],
-            $apartmentQuery['id'],
-            $apartmentQuery['user_id']
-        );
+        $service = new EditApartmentService();
+
+        $apartment = $service->execute(new EditApartmentRequest($apartmentId));
 
         $userName = $_SESSION['username'];
         $userId = (int) $_SESSION['userid'];
@@ -198,6 +160,43 @@ class ApartmentsController
 
     public function update(array $vars): Redirect
     {
+//        $apartmentId = (int) $vars['id'];
+//
+//        $service = new UpdateApartmentsService();
+//
+//        $service->execute(new UpdateApartmentsRequest(
+//            $_POST['name'],
+//            $_POST['description'],
+//            $_POST['address'],
+//            $_POST['available_from'],
+//            $_POST['available_to'],
+//            $apartmentId
+//        ));
+//
+//
+//
+////        $apartmentQuery = Database::connection()
+////            ->createQueryBuilder()
+////            ->select('*')
+////            ->from('apartments')
+////            ->where('id = ?')
+////            ->setParameter(0, $apartmentId)
+////            ->executeQuery()
+////            ->fetchAssociative();
+//
+//        if($_SESSION['userid'] === $service['user_id']) {
+//            $service->execute(new UpdateApartmentsRequest(
+//                $_POST['name'],
+//                $_POST['description'],
+//                $_POST['address'],
+//                $_POST['available_from'],
+//                $_POST['available_to'],
+//                $apartmentId
+//            ));
+//        }
+//
+//        return new Redirect('/apartments/' . $vars['id']);
+
         $apartmentQuery = Database::connection()
             ->createQueryBuilder()
             ->select('*')

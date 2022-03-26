@@ -13,12 +13,14 @@ class ReservationsController
 {
     public function reservation(array $vars): View
     {
+        $apartmentId = (int) $vars['id'];
+
         $apartmentQuery = Database::connection()
             ->createQueryBuilder()
             ->select('*')
             ->from('apartments')
             ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
+            ->setParameter(0, $apartmentId)
             ->executeQuery()
             ->fetchAssociative();
 
@@ -37,7 +39,7 @@ class ReservationsController
             ->select('*')
             ->from('reservations')
             ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
+            ->setParameter(0, $apartmentId)
             ->executeQuery()
             ->fetchAssociative();
 

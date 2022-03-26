@@ -1,30 +1,25 @@
 <?php
 
-namespace App\Models;
+namespace App\Services\Apartment\Update;
 
-class Apartment
+class UpdateApartmentsRequest
 {
     private string $name;
     private string $description;
     private string $address;
     private string $availableFrom;
     private string $availableTo;
-    private array $reviews;
-    private int $id;
-    private ?int $userId;
-
+    private int $apartmentId;
 
     public function __construct(string $name, string $description, string $address, string $availableFrom,
-                                string $availableTo, int $id, ?int $userId, array $reviews = [])
+                                string $availableTo, int $apartmentId)
     {
         $this->name = $name;
         $this->description = $description;
         $this->address = $address;
         $this->availableFrom = $availableFrom;
         $this->availableTo = $availableTo;
-        $this->reviews = $reviews;
-        $this->id = $id;
-        $this->userId = $userId;
+        $this->apartmentId = $apartmentId;
     }
 
     public function getName(): string
@@ -47,23 +42,14 @@ class Apartment
         return $this->availableFrom;
     }
 
-    public function getAvailableTo(): ?string
+    public function getAvailableTo(): string
     {
         return $this->availableTo;
     }
 
-    public function getId(): ?int
+    public function getApartmentId(): int
     {
-        return $this->id;
+        return $this->apartmentId;
     }
 
-    public function getUserId(): int
-    {
-        return $this->userId;
-    }
-
-    public function getReviews(): array
-    {
-        return $this->reviews;
-    }
 }
