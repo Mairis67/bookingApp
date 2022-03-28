@@ -4,45 +4,47 @@ namespace App\Controllers;
 
 use App\Database;
 use App\Redirect;
+use App\Services\Reviews\Delete\DeleteReviewRequest;
+use App\Services\Reviews\Delete\DeleteReviewService;
+use App\Services\Reviews\Review\StoreReviewRequest;
+use App\Services\Reviews\Review\StoreReviewService;
+use App\Services\Reviews\Show\ShowReviewsRequest;
+use App\Services\Reviews\Show\ShowReviewsService;
 
 class ReviewsController
 {
+    public function show($apartmentId): array
+    {
+        $service = new ShowReviewsService();
+
+        return $service->execute(new ShowReviewsRequest($apartmentId));
+    }
+
     public function review(array $vars): Redirect
     {
-        $apartmentId = (int) $vars['id'];
 
-        Database::connection()
-            ->insert('apartment_reviews', [
-                'apartment_id' => $apartmentId,
-                'author_id' => $_SESSION['id'],
-                'author' => $_SESSION['username'],
-                'review' => $_POST['review'],
-            ]);
+        $apartmentId = (int)$vars['id'];
 
-        Database::connection()
-            ->update('apartments', [
-            ], ['id' => $apartmentId]
-            );
+        $service = new StoreReviewService();
+
+        $service->execute(new StoreReviewRequest(
+            $_SESSION['username'],
+            $_POST['review'],
+            $apartmentId,
+            $_SESSION['id']
+        ));
 
         return new Redirect('/apartments' . $apartmentId);
     }
 
     public function delete(array $vars): Redirect
     {
-        $reviewQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartment_reviews')
-            ->where('id = ?')
-            ->setParameter(0, (int) $vars['id'])
-            ->executeQuery()
-            ->fetchAssociative();
+        $reviewId = (int)$vars['id'];
 
-        if((int) $_SESSION['userid'] === $reviewQuery['author_id']) {
-            Database::connection()
-                ->delete('apartment_reviews', ['id' => (int) $vars['id']]);
-        }
+        $service = new DeleteReviewService();
 
-        return new Redirect('/apartments/'  . (int) $vars['nr']);
+        $service->execute(new DeleteReviewRequest($reviewId));
+
+        return new Redirect('/apartments/' . (int)$vars['nr']);
     }
 }

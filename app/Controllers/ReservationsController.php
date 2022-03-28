@@ -3,11 +3,15 @@
 namespace App\Controllers;
 
 use App\Database;
-use App\Models\Apartment;
 use App\Models\Reservation;
 use App\Redirect;
+use App\Services\Apartment\Show\ShowApartmentRequest;
+use App\Services\Apartment\Show\ShowApartmentService;
+use App\Services\Reservations\ConfirmReservation\ConfirmReservationRequest;
+use App\Services\Reservations\ConfirmReservation\ConfrimReservationService;
+use App\Services\Reservations\Reservation\ReservationRequest;
+use App\Services\Reservations\Reservation\ReservationService;
 use App\View;
-use Carbon\Carbon;
 
 class ReservationsController
 {
@@ -15,41 +19,13 @@ class ReservationsController
     {
         $apartmentId = (int) $vars['id'];
 
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, $apartmentId)
-            ->executeQuery()
-            ->fetchAssociative();
+        $apartmentService = new ShowApartmentService();
 
-        $apartment = new Apartment(
-            $apartmentQuery['name'],
-            $apartmentQuery['description'],
-            $apartmentQuery['address'],
-            $apartmentQuery['available_from'],
-            $apartmentQuery['available_to'],
-            $apartmentQuery['id'],
-            $apartmentQuery['user_id'],
-        );
+        $apartment = $apartmentService->execute(new ShowApartmentRequest($apartmentId));
 
-        $reservationQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('reservations')
-            ->where('id = ?')
-            ->setParameter(0, $apartmentId)
-            ->executeQuery()
-            ->fetchAssociative();
+        $reservationService = new ReservationService();
 
-        $reservation = new Reservation(
-            $reservationQuery['reserve_from'],
-            $reservationQuery['reserve_to'],
-            $reservationQuery['apartment_id'],
-            $reservationQuery['user_id'],
-            $reservationQuery['id'],
-        );
+        $reservation = $reservationService->execute(new ReservationRequest($apartmentId));
 
         $userName = $_SESSION['username'];
         $userId = (int) $_SESSION['userid'];
@@ -64,31 +40,19 @@ class ReservationsController
 
     public function confirm(array $vars): Redirect
     {
-
-        Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('reservations')
-            ->andWhere('apartment_id = :id')
-            ->setParameter('id', (int) $vars['id'])
-            ->executeQuery()
-            ->fetchAllAssociative();
+        $apartmentId = (int) $vars['id'];
 
         $userId = (int) $_SESSION['userid'];
         $reserveFrom = $_POST['reserve_from'];
         $reserveTo = $_POST['reserve_to'];
 
-        Database::connection()
-            ->insert('reservations', [
-                'apartment_id' => (int) $vars['id'],
-                'user_id' => $userId,
-                'reserve_from' => $reserveFrom,
-                'reserve_to' => $reserveTo
-            ]);
+        $service = new ConfrimReservationService();
+
+        $service->execute(new ConfirmReservationRequest($reserveFrom, $reserveTo, $userId, $apartmentId));
 
         $_SESSION['reservationConfirmed'] = 'reserved';
         var_dump($_SESSION['reservationConfirmed']);
 
-        return new Redirect('/apartments/' . $vars['id'] . '/reservation');
+        return new Redirect('/apartments/' . $apartmentId . '/reservation');
     }
 }

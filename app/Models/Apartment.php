@@ -10,11 +10,11 @@ class Apartment
     private string $availableFrom;
     private string $availableTo;
     private array $reviews;
-    private ?int $id;
     private int $userId;
+    private ?int $id;
 
     public function __construct(string $name, string $description, string $address, string $availableFrom,
-                                string $availableTo, int $userId,?int $id = null, array $reviews = [])
+                                string $availableTo,  int $userId, ?int $id = null, array $reviews = [])
     {
         $this->name = $name;
         $this->description = $description;
@@ -51,14 +51,14 @@ class Apartment
         return $this->availableTo;
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getUserId(): int
     {
         return $this->userId;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
     public function getReviews(): array

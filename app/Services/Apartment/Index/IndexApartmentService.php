@@ -2,34 +2,25 @@
 
 namespace App\Services\Apartment\Index;
 
-use App\Database;
-use App\Models\Apartment;
+use App\Repositories\Apartment\ApartmentRepository;
+use App\Repositories\Apartment\MySqlApartmentRepository;
+use function Symfony\Component\Translation\t;
 
 class IndexApartmentService
 {
+    private ApartmentRepository $apartmentRepository;
+
+    public function __construct()
+    {
+        $this->apartmentRepository = new MySqlApartmentRepository();
+    }
+
     public function execute(): array
     {
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->executeQuery()
-            ->fetchAllAssociative();
+        $request = $this->apartmentRepository->index();
 
-        $apartments = [];
+        $apartments = new IndexApartmentRequest($request);
 
-        foreach ($apartmentQuery as $apartmentData) {
-            $apartmentDate = explode(' ',$apartmentData['available_from']);
-            $apartments [] = new Apartment(
-                $apartmentData['name'],
-                $apartmentData['description'],
-                $apartmentData['address'],
-                $apartmentDate[0],
-                $apartmentData['available_to'],
-                $apartmentData['id'],
-                $apartmentDate['user_id']
-            );
-        }
-        return $apartments;
+        return $apartments->getApartments();
     }
 }

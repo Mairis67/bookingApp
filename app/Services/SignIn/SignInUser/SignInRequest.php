@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\SignIn;
+namespace App\Services\SignIn\SignInUser;
 
 class SignInRequest
 {

@@ -2,22 +2,20 @@
 
 namespace App\Services\Apartment\Delete;
 
-use App\Database;
+use App\Repositories\Apartment\ApartmentRepository;
+use App\Repositories\Apartment\MySqlApartmentRepository;
 
 class DeleteApartmentService
 {
+    private ApartmentRepository $apartmentRepository;
+
+    public function __construct()
+    {
+        $this->apartmentRepository = new MySqlApartmentRepository();
+    }
+
     public function execute(DeleteApartmentRequest $request)
     {
-        Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, $request->getApartmentId())
-            ->executeQuery()
-            ->fetchAssociative();
-
-        Database::connection()
-            ->delete('apartments', ['id' => $request->getApartmentId()]);
+        $this->apartmentRepository->delete($request->getApartmentId());
     }
 }

@@ -2,45 +2,25 @@
 
 namespace App\Services\SignUp;
 
-use App\Database;
+use App\Repositories\SignUp\MySqlSignUpRepository;
+use App\Repositories\SignUp\SignUpRepository;
 
 class SignUpUserService
 {
-    public function execute(SignUpUserRequest $request)
+    private SignUpRepository $signUpRepository;
+
+    public function __construct()
     {
-        Database::connection()
-            ->createQueryBuilder()
-            ->select('email')
-            ->from('users')
-            ->where("email = '{$request->getEmail()}'")
-            ->executeQuery()
-            ->fetchAssociative();
-
-        $hashedPassword = password_hash($request->getPassword(), PASSWORD_DEFAULT);
-
-        Database::connection()
-            ->insert('users', [
-                'email' => $request->getEmail(),
-                'password' => $hashedPassword
-            ]);
-
-        $usersQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('email', 'id')
-            ->from('users')
-            ->where('email = ?')
-            ->setParameter(0, $request->getEmail())
-            ->executeQuery()
-            ->fetchAssociative();
-
-        $userId = $usersQuery['id'];
-
-        Database::connection()
-            ->insert('user_profiles', [
-                'user_id' => $userId,
-                'name' => $request->getName(),
-                'surname' => $request->getSurname(),
-            ]);
+        $this->signUpRepository = new MySqlSignUpRepository();
     }
 
+    public function execute(SignUpUserRequest $request): void
+    {
+        $email = $request->getEmail();
+        $password = $request->getPassword();
+        $name = $request->getName();
+        $surname = $request->getSurname();
+
+        $this->signUpRepository->signUp($email, $password, $name, $surname);
+    }
 }

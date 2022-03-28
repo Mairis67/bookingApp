@@ -4,8 +4,10 @@ namespace App\Controllers;
 
 use App\Database;
 use App\Redirect;
-use App\Services\SignIn\SignInRequest;
-use App\Services\SignIn\SignInService;
+use App\Services\SignIn\SearchUser\SearchUserRequest;
+use App\Services\SignIn\SearchUser\SearchUserService;
+use App\Services\SignIn\SignInUser\SignInRequest;
+use App\Services\SignIn\SignInUser\SignInService;
 use App\View;
 
 class SignInController
@@ -17,14 +19,9 @@ class SignInController
 
     public function signIn(): Redirect
     {
-        $usersQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('users')
-            ->where('email = ?')
-            ->setParameter(0, $_POST['email'])
-            ->executeQuery()
-            ->fetchAssociative();
+        $registeredService = new SearchUserService();
+
+        $usersQuery = $registeredService->execute(new SearchUserRequest($_POST['email']));
 
         // Wrong email
         if($usersQuery === false) {
@@ -35,6 +32,10 @@ class SignInController
         if(!password_verify($_POST['password'], $usersQuery['password'])) {
             return  new Redirect('/users/signin');
         }
+
+//        $singInService = new SignInService();
+//
+//        $usersProfileQuery = $singInService->execute(new SignInRequest($_POST['email']));
 
         $usersProfileQuery = Database::connection()
             ->createQueryBuilder()

@@ -2,18 +2,31 @@
 
 namespace App\Services\Apartment\Update;
 
-use App\Database;
+use App\Models\Apartment;
+use App\Repositories\Apartment\ApartmentRepository;
+use App\Repositories\Apartment\MySqlApartmentRepository;
 
 class UpdateApartmentsService
 {
-    public function execute(UpdateApartmentsRequest $request)
+    private ApartmentRepository $apartmentRepository;
+
+    public function __construct()
     {
-        Database::connection()->update('apartments', [
-            'name' => $request->getName(),
-            'description' => $request->getDescription(),
-            'address' => $request->getAddress(),
-            'available_from' => $request->getAvailableFrom(),
-            'available_to' => $request->getAvailableTo(),
-        ], ['id' => $request->getApartmentId()]);
+        $this->apartmentRepository = new MySqlApartmentRepository();
+    }
+
+    public function execute(UpdateApartmentsRequest $request): void
+    {
+
+        $apartment = new Apartment(
+            $request->getName(),
+            $request->getDescription(),
+            $request->getAddress(),
+            $request->getAvailableFrom(),
+            $request->getAvailableTo(),
+            $request->getApartmentId(),
+        );
+
+        $this->apartmentRepository->update($apartment);
     }
 }

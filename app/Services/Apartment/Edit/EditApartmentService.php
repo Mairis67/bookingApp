@@ -4,29 +4,23 @@ namespace App\Services\Apartment\Edit;
 
 use App\Database;
 use App\Models\Apartment;
+use App\Repositories\Apartment\ApartmentRepository;
+use App\Repositories\Apartment\MySqlApartmentRepository;
 
 class EditApartmentService
 {
+    private ApartmentRepository $apartmentRepository;
+
+    public function __construct()
+    {
+        $this->apartmentRepository = new MySqlApartmentRepository();
+    }
+
     public function execute(EditApartmentRequest $request): Apartment
     {
-        $apartmentQuery = Database::connection()
-            ->createQueryBuilder()
-            ->select('*')
-            ->from('apartments')
-            ->where('id = ?')
-            ->setParameter(0, $request->getApartmentId())
-            ->executeQuery()
-            ->fetchAssociative();
+        $apartmentId = $request->getApartmentId();
 
-        return new Apartment(
-            $apartmentQuery['name'],
-            $apartmentQuery['description'],
-            $apartmentQuery['address'],
-            $apartmentQuery['available_from'],
-            $apartmentQuery['available_to'],
-            $apartmentQuery['id'],
-            $apartmentQuery['user_id']
-        );
+        return $this->apartmentRepository->edit($apartmentId);
     }
 
 }

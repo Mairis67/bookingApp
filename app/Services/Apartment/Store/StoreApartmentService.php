@@ -3,17 +3,17 @@
 namespace App\Services\Apartment\Store;
 
 use App\Models\Apartment;
-use App\Repositories\Apartment\Store\MySqlStoreApartmentRepository;
-use App\Repositories\Apartment\Store\StoreApartmentRepository;
+use App\Repositories\Apartment\MySqlApartmentRepository;
+use App\Repositories\Apartment\ApartmentRepository;
 
 class StoreApartmentService
 {
 
-    private StoreApartmentRepository $storeApartmentRepository;
+    private ApartmentRepository $storeApartmentRepository;
 
     public function __construct()
     {
-        $this->storeApartmentRepository = new MySqlStoreApartmentRepository();
+        $this->storeApartmentRepository = new MySqlApartmentRepository();
     }
 
     public function execute(StoreApartmentRequest $request): Apartment
@@ -24,11 +24,10 @@ class StoreApartmentService
             $request->getAddress(),
             $request->getAvailableFrom(),
             $request->getAvailableTo(),
-            $request->getUserId(),
-        
+            $request->getUserId()
         );
 
-        $this->storeApartmentRepository->save($apartment);
+        $this->storeApartmentRepository->store($apartment);
 
         return $apartment;
     }
